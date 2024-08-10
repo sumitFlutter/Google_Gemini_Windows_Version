@@ -1,10 +1,9 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:google_gemini_window_version/utils/helpers/hive_helper.dart';
 
 import '../../../utils/helpers/api_helper.dart';
 import '../../../utils/helpers/connectivity_helper.dart';
-import '../../../utils/helpers/db_helper.dart';
 import '../model/db_model.dart';
 import '../model/gemini_model.dart';
 
@@ -20,13 +19,13 @@ class GeminiProvider with ChangeNotifier{
     if(await apiHelper.apiCall(text)!=null)
       {
         geminiModel=(await apiHelper.apiCall(text));
-        DBHelper.dbHelper.insertMsg(GeminiDBModel(text:geminiModel!.candidatesModelList![0].contentModel!.parts![0].text!,time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
-        qnaList=await DBHelper.dbHelper.readMsg();
+        await HiveHelper.hiveHelper.addChat(GeminiDBModel(text:geminiModel!.candidatesModelList![0].contentModel!.parts![0].text!,time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
+        qnaList=HiveHelper.hiveHelper.getChat();
       }
     else{
       geminiModel=GeminiModel();
-      DBHelper.dbHelper.insertMsg(GeminiDBModel(text: "SomeThing Went Wrong",time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
-      qnaList=await DBHelper.dbHelper.readMsg();
+      await HiveHelper.hiveHelper.addChat(GeminiDBModel(text: "SomeThing Went Wrong",time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
+      qnaList=HiveHelper.hiveHelper.getChat();
 
     }
     notifyListeners();
@@ -35,13 +34,13 @@ class GeminiProvider with ChangeNotifier{
   async {
     text=q;
     geminiModel=null;
-    DBHelper.dbHelper.insertMsg(GeminiDBModel(time: "${DateTime.now().hour}:${DateTime.now().minute}",text: q,date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 0));
-    qnaList=await DBHelper.dbHelper.readMsg();
+    await HiveHelper.hiveHelper.addChat(GeminiDBModel(time: "${DateTime.now().hour}:${DateTime.now().minute}",text: q,date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 0));
+    qnaList=HiveHelper.hiveHelper.getChat();
     notifyListeners();
   }
-  Future<void> readList()
-  async {
-    qnaList=await DBHelper.dbHelper.readMsg();
+  void readList()
+  {
+    qnaList=HiveHelper.hiveHelper.getChat();
     notifyListeners();
   }
  /* Future<void> checkConnectivity()

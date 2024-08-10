@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_gemini_window_version/utils/helpers/hive_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../../../utils/helpers/db_helper.dart';
 import '../provider/gemini_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -42,29 +42,29 @@ class _HomeScreenState extends State<HomeScreen> {
         if (readObject!.qnaList.length >= 9) {
           itemScrollController.scrollTo(
               index: readObject!.qnaList.length - 1,
-              duration: Duration(seconds: 1));
+              duration: const Duration(seconds: 1));
         }
       },
     );
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xff1e1e1e),
-        surfaceTintColor: Color(0xff1e1e1e),
+        backgroundColor: const Color(0xff1e1e1e),
+        surfaceTintColor: const Color(0xff1e1e1e),
         title: const Text("Gemini Ai"),
         actions: [
           PopupMenuButton(
             itemBuilder: (context) {
               return [
                 PopupMenuItem(
-                  child: Text("How to Delete a Specific Chat?"),
+                  child: const Text("How to Delete a Specific Chat?"),
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text("How to Delete Chat?"),
-                          content: Text(
+                          title: const Text("How to Delete Chat?"),
+                          content: const Text(
                             "On Double Tap you can delete the Specific Chat",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: Text("OK!"))
+                                child: const Text("OK!"))
                           ],
                         );
                       },
@@ -81,14 +81,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 PopupMenuItem(
-                  child: Text("How to All Delete Chat?"),
+                  child: const Text("How to All Delete Chat?"),
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text("How to All Delete Chat?"),
-                          content: Text(
+                          title: const Text("How to All Delete Chat?"),
+                          content: const Text(
                             "On App info of gemini You have to press  Clear all Data ",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: Text("OK!"))
+                                child: const Text("OK!"))
                           ],
                         );
                       },
@@ -105,14 +105,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 PopupMenuItem(
-                  child: Text("How to use (copy) Ai Generated Answer?"),
+                  child: const Text("How to use (copy) Ai Generated Answer?"),
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text("How to use (copy) Ai Generated Answer?"),
-                          content: Text(
+                          title: const Text("How to use (copy) Ai Generated Answer?"),
+                          content: const Text(
                             "On Long Press of Text you can Select the Specific Chat or word or else Sentence",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: Text("OK!"))
+                                child: const Text("OK!"))
                           ],
                         );
                       },
@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               ];
             },
-            icon: Icon(Icons.info_outline),
+            icon: const Icon(Icons.info_outline),
           )
         ],
       ),
@@ -190,10 +190,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             },
                                             child: const Text("No!")),
                                         ElevatedButton(
-                                            onPressed: () {
-                                              DBHelper.dbHelper.deleteChat(
-                                                  id: watchObject!
-                                                      .qnaList[index].id!);
+                                            onPressed: () async {
+                                              await HiveHelper.hiveHelper.deleteChat(index);
                                               watchObject!.readList();
                                               Navigator.pop(context);
                                             },
@@ -243,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: watchObject!.qnaList[index].date ==
                                               "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
                                           ? Text(
-                                              "${watchObject!.qnaList[index].time}")
+                                              watchObject!.qnaList[index].time)
                                           : Text(
                                               "${watchObject!.qnaList[index].date}  ${watchObject!.qnaList[index].time}"),
                                     )
@@ -290,8 +288,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         icon: const Icon(Icons.send))
                                     ),
                           ):
-                     Center(
-                       child: const SpinKitFadingCircle(
+                     const Center(
+                       child: SpinKitFadingCircle(
                                            size: 30,
                                            color: Colors.white,
                                          ),
@@ -300,8 +298,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       : Container(
                           height: MediaQuery.sizeOf(context).height * 0.08,
                           width: MediaQuery.sizeOf(context).width,
-                          margin: EdgeInsets.all(10),
-                          padding: EdgeInsets.all(5),
+                          margin: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all()),
