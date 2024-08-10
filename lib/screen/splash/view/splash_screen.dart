@@ -11,10 +11,12 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
     context.read<GeminiProvider>().first();
+    context.read<GeminiProvider>().readList();
     Future.delayed(
       const Duration(seconds: 3),
       () => Navigator.pushReplacementNamed(context, "home"),

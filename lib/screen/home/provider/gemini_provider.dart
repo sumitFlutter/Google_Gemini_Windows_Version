@@ -1,46 +1,70 @@
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:google_gemini_window_version/utils/helpers/hive_helper.dart';
+import 'package:google_gemini_window_version/utils/helpers/shared_helper.dart';
 
 import '../../../utils/helpers/api_helper.dart';
 import '../../../utils/helpers/connectivity_helper.dart';
-import '../model/db_model.dart';
 import '../model/gemini_model.dart';
 
 class GeminiProvider with ChangeNotifier{
+  List<String> qnaList=[];
+  List<String> isAnsList=[];
+  Map<String,List<String>> allMap={};
   GeminiModel? geminiModel=GeminiModel();
   ConnectivityHelper helper=ConnectivityHelper();
   bool isConnected=true;
+
   String text="Who is PM of INDIA?";
-  List<GeminiDBModel> qnaList=[];
   APIHelper apiHelper=APIHelper();
+  Future<void> getDataFromSharedHelper()
+  async {
+      allMap=await SharedHelper.sharedHelper.getData();
+      qnaList=allMap["text"]!;
+      isAnsList=allMap["isAns"]!;
+  }
+  void setDataFor()
+  async {
+    await SharedHelper.sharedHelper.setData(textList: qnaList,isAnsList: isAnsList);
+  }
   void postAPICall()
   async {
     if(await apiHelper.apiCall(text)!=null)
       {
         geminiModel=(await apiHelper.apiCall(text));
-        await HiveHelper.hiveHelper.addChat(GeminiDBModel(text:geminiModel!.candidatesModelList![0].contentModel!.parts![0].text!,time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
-        qnaList=HiveHelper.hiveHelper.getChat();
+         getDataFromSharedHelper();
+        qnaList.add(geminiModel!.candidatesModelList![0].contentModel!.parts![0].text!);
+        isAnsList.add(0.toString());
+        setDataFor();
+         getDataFromSharedHelper();
+        //await HiveHelper.hiveHelper.addChat(GeminiDBModel(text:,time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
       }
     else{
       geminiModel=GeminiModel();
-      await HiveHelper.hiveHelper.addChat(GeminiDBModel(text: "SomeThing Went Wrong",time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
-      qnaList=HiveHelper.hiveHelper.getChat();
+      //await HiveHelper.hiveHelper.addChat(GeminiDBModel(text: "SomeThing Went Wrong",time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
+       getDataFromSharedHelper();
+      qnaList.add("SomeThing Went Wrong");
+      isAnsList.add(0.toString());
+       setDataFor();
+      getDataFromSharedHelper();
 
     }
     notifyListeners();
   }
-  Future<void> getQ(String q)
+  void getQ(String q)
   async {
     text=q;
     geminiModel=null;
-    await HiveHelper.hiveHelper.addChat(GeminiDBModel(time: "${DateTime.now().hour}:${DateTime.now().minute}",text: q,date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 0));
-    qnaList=HiveHelper.hiveHelper.getChat();
+    getDataFromSharedHelper();
+    qnaList.add(q);
+    isAnsList.add(1.toString());
+    setDataFor();
+    getDataFromSharedHelper();
     notifyListeners();
   }
   void readList()
-  {
-    qnaList=HiveHelper.hiveHelper.getChat();
+  async {
+    getDataFromSharedHelper();
     notifyListeners();
   }
  /* Future<void> checkConnectivity()
@@ -81,4 +105,14 @@ class GeminiProvider with ChangeNotifier{
 
 
   }
+  void deleteData(int index)
+  async {
+    getDataFromSharedHelper();
+    qnaList.removeAt(index);
+    isAnsList.removeAt(index);
+    setDataFor();
+    getDataFromSharedHelper();
+    notifyListeners();
+  }
+
 }
