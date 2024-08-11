@@ -1,4 +1,4 @@
-# Google Gemini AI Desktop Edition
+# Google Gemini AI Windows Edition
 
 **Application Description:**
 Google Gemini AI is a cutting-edge desktop application developed by Sumit Gohil, utilizing Flutter and the Google AI Studio 1.5 API. This edition brings advanced artificial intelligence capabilities to desktop environments, featuring a user-friendly interface that ensures seamless functionality across various desktop platforms.
