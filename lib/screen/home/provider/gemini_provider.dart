@@ -9,7 +9,7 @@ import '../model/gemini_model.dart';
 
 class GeminiProvider with ChangeNotifier{
   List<String> qnaList=[];
-  List<String> isAnsList=[];
+  List<String> isAnsList=[],timeList=[],dateList=[];
   Map<String,List<String>> allMap={};
   GeminiModel? geminiModel=GeminiModel();
   ConnectivityHelper helper=ConnectivityHelper();
@@ -22,10 +22,12 @@ class GeminiProvider with ChangeNotifier{
       allMap=await SharedHelper.sharedHelper.getData();
       qnaList=allMap["text"]!;
       isAnsList=allMap["isAns"]!;
+      timeList=allMap["time"]!;
+      dateList=allMap["date"]!;
   }
   void setDataFor()
   async {
-    await SharedHelper.sharedHelper.setData(textList: qnaList,isAnsList: isAnsList);
+    await SharedHelper.sharedHelper.setData(textList: qnaList,isAnsList: isAnsList,timeList: timeList,dateList: dateList);
   }
   void postAPICall()
   async {
@@ -35,6 +37,8 @@ class GeminiProvider with ChangeNotifier{
          getDataFromSharedHelper();
         qnaList.add(geminiModel!.candidatesModelList![0].contentModel!.parts![0].text!);
         isAnsList.add(0.toString());
+        timeList.add("${DateTime.now().hour}:${DateTime.now().minute}");
+        dateList.add("${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
         setDataFor();
          getDataFromSharedHelper();
         //await HiveHelper.hiveHelper.addChat(GeminiDBModel(text:,time: "${DateTime.now().hour}:${DateTime.now().minute}",date: "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",isQ: 1));
@@ -45,7 +49,9 @@ class GeminiProvider with ChangeNotifier{
        getDataFromSharedHelper();
       qnaList.add("SomeThing Went Wrong");
       isAnsList.add(0.toString());
-       setDataFor();
+      timeList.add("${DateTime.now().hour}:${DateTime.now().minute}");
+      dateList.add("${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+      setDataFor();
       getDataFromSharedHelper();
 
     }
@@ -58,6 +64,8 @@ class GeminiProvider with ChangeNotifier{
     getDataFromSharedHelper();
     qnaList.add(q);
     isAnsList.add(1.toString());
+    timeList.add("${DateTime.now().hour}:${DateTime.now().minute}");
+    dateList.add("${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
     setDataFor();
     getDataFromSharedHelper();
     notifyListeners();
@@ -110,6 +118,8 @@ class GeminiProvider with ChangeNotifier{
     getDataFromSharedHelper();
     qnaList.removeAt(index);
     isAnsList.removeAt(index);
+    dateList.removeAt(index);
+    timeList.removeAt(index);
     setDataFor();
     getDataFromSharedHelper();
     notifyListeners();

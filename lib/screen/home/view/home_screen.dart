@@ -14,6 +14,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   GeminiProvider? readObject;
+  GeminiProvider? watchObject;
   TextEditingController textEditingController = TextEditingController();
   final ItemScrollController itemScrollController = ItemScrollController();
   final ScrollOffsetController scrollOffsetController =
@@ -28,12 +29,15 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     context.read<GeminiProvider>().onChangedConnectivity();
+    context.read<GeminiProvider>().readList();
+
   }
   @override
   Widget build(BuildContext context) {
     readObject = context.read<GeminiProvider>();
+    watchObject =context.watch<GeminiProvider>();
     Future.delayed(
-      const Duration(seconds: 1),
+      const Duration(seconds: 2),
           () {
         if (readObject!.qnaList.length >= 9) {
           itemScrollController.scrollTo(
@@ -138,155 +142,198 @@ class _HomeScreenState extends State<HomeScreen> {
             width: MediaQuery.sizeOf(context).width,
             fit: BoxFit.cover,
           ),
-          Padding(
-            padding: const EdgeInsets.all(5),
-            child: SingleChildScrollView(
-              child: Consumer<GeminiProvider>(
-                builder: (context, value, child) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.sizeOf(context).height * 0.8,
-                        width: MediaQuery.sizeOf(context).width,
-                        child: ScrollablePositionedList.builder(
-                          itemScrollController: itemScrollController,
-                          scrollOffsetController: scrollOffsetController,
-                          itemPositionsListener: itemPositionsListener,
-                          scrollOffsetListener: scrollOffsetListener,
-                          itemCount:value.qnaList.length,
-                          itemBuilder: (context, index) {
-                            return Align(
-                                alignment: value.isAnsList[index] == 0.toString()
-                                    ? Alignment.centerLeft
-                                    : Alignment.centerRight,
-                                child: InkWell(
-                                  onDoubleTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: const Text("Are You Sure?"),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                value.qnaList[index],
-                                                style: const TextStyle(
-                                                    overflow:
-                                                    TextOverflow.ellipsis),
-                                              ),
-                                              const SizedBox(
-                                                height: 4,
-                                              ),
-                                              const Text("Will be deleted."),
-                                            ],
-                                          ),
-                                          actions: [
-                                            ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text("No!")),
-                                            ElevatedButton(
-                                                onPressed: () {
-                                                  value.deleteData(index);
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text("Yes!"))
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Card(
-                                    color: value.isAnsList[index] == 0.toString()
-                                        ? const Color(0xff452473)
-                                        : const Color(0xff1F2C33),
-                                    surfaceTintColor: value.isAnsList[index] == 0.toString()
-                                        ? const Color(0xff283cb4)
-                                        : const Color(0xff750d83),
-                                    margin: const EdgeInsets.all(12),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4),
-                                      child: SelectableText(
-                                        value.qnaList[index],
+          Column(
+            children: [
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.8,
+                width: MediaQuery.sizeOf(context).width,
+                child: ScrollablePositionedList.builder(
+                  itemScrollController: itemScrollController,
+                  scrollOffsetController: scrollOffsetController,
+                  itemPositionsListener: itemPositionsListener,
+                  scrollOffsetListener: scrollOffsetListener,
+                  itemCount: watchObject!.qnaList.length,
+                  padding: EdgeInsets.all(5),
+                  itemBuilder: (context, index) {
+                    return Align(
+                        alignment: watchObject!.isAnsList[index] == 0.toString()
+                            ? Alignment.centerLeft
+                            : Alignment.centerRight,
+                        child: InkWell(
+                          onDoubleTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("Are You Sure?"),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        watchObject!.qnaList[index],
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                        ),
+                                            overflow:
+                                            TextOverflow.ellipsis),
                                       ),
-                                    ),
+                                      const SizedBox(
+                                        height: 4,
+                                      ),
+                                      const Text("Will be deleted."),
+                                    ],
                                   ),
-                                ));
+                                  actions: [
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text("No!")),
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          watchObject!.deleteData(index);
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text("Yes!"))
+                                  ],
+                                );
+                              },
+                            );
                           },
-                        ),
-                      ),
-                      value.isConnected
-                          ? SizedBox(
-                          height: MediaQuery.sizeOf(context).height * 0.08,
-                          width: MediaQuery.sizeOf(context).width,
-                          child: value.geminiModel != null
-                              ?TextField(
-                            controller: textEditingController,
-                            minLines: 1,
-                            maxLines: 5,
-                            textInputAction: TextInputAction.newline,
-                            decoration: InputDecoration(
-                                hintText: "Ask me Questions",
-                                suffixIcon:  IconButton(
-                                    onPressed: () async {
-                                      FocusScope.of(context)
-                                          .requestFocus(FocusNode());
-                                      value
-                                          .getQ(textEditingController.text);
-                                      if (value.qnaList.length >= 5) {
-                                        itemScrollController.jumpTo(
-                                            index:
-                                            value.qnaList.length -
-                                                1);
-                                      }
-                                      textEditingController.clear();
-                                      readObject!.postAPICall();
-                                      if (value.qnaList.length >= 5) {
-                                        itemScrollController.jumpTo(
-                                            index:
-                                            value.qnaList.length -
-                                                1);
-                                      }
-                                    },
-                                    icon: const Icon(Icons.send))
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            width: watchObject!.qnaList[index].length>=200?
+                            MediaQuery.sizeOf(context).width * 0.50:
+                            watchObject!.qnaList[index].length>=100?
+                            MediaQuery.sizeOf(context).width * 0.40:
+                            watchObject!
+                                .qnaList[index].length >=
+                                60
+                                ? MediaQuery.sizeOf(context).width * 0.30
+                                : watchObject!
+                                .qnaList[index].length >=
+                                15
+                                ? 220
+                                : 150,
+                            margin: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                                color: watchObject!.isAnsList[index] == 0.toString()
+                                    ? const Color(0xff452473)
+                                    : const Color(0xff1F2C33),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Center(
+                                  child: SelectableText(
+                                    watchObject!.qnaList[index],
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                watchObject!.isAnsList[index]==0.toString()?Container():
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: watchObject!.dateList[index]==
+                                      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                                      ? Text(
+                                      watchObject!.timeList[index])
+                                      : Text(
+                                      "${watchObject!.dateList[index]}  ${watchObject!.timeList[index]}"),
+                                )
+                              ],
                             ),
-                          ):
-                          const Center(
-                            child: SpinKitFadingCircle(
-                              size: 30,
-                              color: Colors.white,
-                            ),
-                          )
-                      )
-                          : Container(
-                        height: MediaQuery.sizeOf(context).height * 0.08,
-                        width: MediaQuery.sizeOf(context).width,
-                        margin: const EdgeInsets.all(10),
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all()),
-                        child: const Center(
-                          child: Text(
-                            "Kindly Please Check Your Network Connection",
-                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                        ));
+                  },
+                ),
               ),
-            ),
+              watchObject!.isConnected
+                  ? SizedBox(
+                  height: MediaQuery.sizeOf(context).height * 0.08,
+                  width: MediaQuery.sizeOf(context).width,
+                  child: watchObject!.geminiModel != null
+                      ?TextField(
+                    controller: textEditingController,
+                    minLines: 1,
+                    maxLines: 5,
+                    onSubmitted: (value) => onSubmit,
+                    decoration: InputDecoration(
+                        hintText: "Ask me Questions",
+                        suffixIcon:  IconButton(
+                            onPressed: () async {
+                              FocusScope.of(context)
+                                  .requestFocus(FocusNode());
+                              readObject!
+                                  .getQ(textEditingController.text);
+                              if (readObject!.qnaList.length >= 5) {
+                                itemScrollController.jumpTo(
+                                    index:
+                                    readObject!.qnaList.length -
+                                        1);
+                              }
+                              textEditingController.clear();
+                              readObject!.postAPICall();
+                              if (readObject!.qnaList.length >= 5) {
+                                itemScrollController.jumpTo(
+                                    index:
+                                    readObject!.qnaList.length -
+                                        1);
+                              }
+                            },
+                            icon: const Icon(Icons.send))
+                    ),
+                  ):
+                  Center(
+                    child: const SpinKitFadingCircle(
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                  )
+              )
+                  : Container(
+                height: MediaQuery.sizeOf(context).height * 0.08,
+                width: MediaQuery.sizeOf(context).width,
+                margin: EdgeInsets.all(10),
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all()),
+                child: const Center(
+                  child: Text(
+                    "Kindly Please Check Your Network Connection",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
         ),
     );
+  }
+  void onSubmit()
+  async{
+    FocusScope.of(context)
+        .requestFocus(FocusNode());
+    readObject!
+        .getQ(textEditingController.text);
+    if (readObject!.qnaList.length >= 5) {
+      itemScrollController.jumpTo(
+          index:
+          readObject!.qnaList.length -
+              1);
+    }
+    textEditingController.clear();
+    readObject!.postAPICall();
+    if (readObject!.qnaList.length >= 5) {
+      itemScrollController.jumpTo(
+          index:
+          readObject!.qnaList.length -
+              1);
+    }
   }
 }
