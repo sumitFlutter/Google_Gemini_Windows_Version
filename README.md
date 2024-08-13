@@ -25,7 +25,7 @@ Google Gemini AI Desktop Edition combines powerful AI features with an intuitive
 - **Name:** Sumit Gohil
 - **GitHub ID:** [sumitFlutter](https://www.github.com/sumitFlutter)
 - **Email:** [gohilsumit142@gmail.com](mailto:gohilsumit142@gmail.com)
-- <a herf="https://www.instagram.com/reel/C-kwfehoIhr/?igsh=NTc4MTIwNjQ2YQ==" insta reel />
+- <a herf="https://www.instagram.com/reel/C-kwfehoIhr/?igsh=NTc4MTIwNjQ2YQ==" insta reel </a>
 
 **Future Enhancements:**
 
