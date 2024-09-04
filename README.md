@@ -5,6 +5,7 @@ Google Gemini AI is a cutting-edge desktop application developed by Sumit Gohil,
 
 **Overview:**
 Google Gemini AI Desktop Edition combines powerful AI features with an intuitive design, allowing users to benefit from real-time data insights and customization options on their desktop systems.
+<img src="https://github.com/user-attachments/assets/d3d322d1-6ba5-4bbf-99f0-4da80507fb72" />
 
 **Key Features:**
 
